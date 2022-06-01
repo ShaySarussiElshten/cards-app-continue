@@ -10,8 +10,8 @@ const { v4: uuidv4 } = require('uuid');
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_EMAIL,
-} from '../../utiles/validators';
-
+} from '../../validators/validatorsFunctions';
+import {errorMessageValuesType, geterStateType, isTouchedValuesType, isValidValuesType, seterStateType} from '../../interface/FormTypes'
 
 const CreateScreen = () => {
   
@@ -19,17 +19,30 @@ const CreateScreen = () => {
   const {persons,setPersons} = useContext(Context) as AppContext;
 
   const navigate = useNavigate();
-  const [name,setName] = useState('')
-  const [title,setTitle] = useState('')
+  
+  const {
+    value: titleValue,
+    isValid: titleIsValid,
+    setValue: setTitleValue,
+    isTouched: titleIsTouched,
+    errorMessage: titleErrorMessage,
+  } = useInput([VALIDATOR_REQUIRE()]);
+
+
+  const {
+    value: nameValue,
+    isValid: nameIsValid,
+    setValue: setNameValue,
+    isTouched: nameIsTouched,
+    errorMessage: nameErrorMessage,
+  } = useInput([VALIDATOR_REQUIRE()]);
   
   const {
     value: emailValue,
     isValid: emailIsValid,
-    hasError: emailHasError,
     setValue: setEmailValue,
     isTouched: emailIsTouched,
     errorMessage: emailErrorMessage,
-    inputBlurHandler:emailOnBlur
   } = useInput([VALIDATOR_REQUIRE(),VALIDATOR_EMAIL()]);
   
   const [imageUrl,setImageUrl] = useState('')
@@ -38,7 +51,7 @@ const CreateScreen = () => {
 
   let formIsValid = false;
 
-  if (emailIsValid) {
+  if (emailIsValid && nameIsValid && titleIsValid) {
      formIsValid = true;
   }
 
@@ -47,8 +60,8 @@ const CreateScreen = () => {
     const copyList = [...persons]
     copyList.push({
         id:uuidv4(),
-        name,
-        title,
+        name:nameValue,
+        title:titleValue,
         email:emailValue,
         imageUrl,
         telephone,
@@ -58,32 +71,58 @@ const CreateScreen = () => {
     navigate('/home')
   }
 
-  console.log(emailIsTouched)
+  
+ 
 
 
+  const seterState ={
+    setName:setNameValue,
+    setTitle:setTitleValue,
+    setEmail:setEmailValue,
+    setImageUrl,
+    setTelephone,
+    setRole
+  } as seterStateType
+
+  const geterState={
+    name:nameValue,
+    title:titleValue,
+    email:emailValue,
+    imageUrl,
+    telephone,
+    role
+  } as geterStateType
+
+  const isTouchedValues = {
+    emailIsTouched,
+    nameIsTouched,
+    titleIsTouched
+  } as isTouchedValuesType
+
+
+  const isValidValues = {
+    emailIsValid,
+    nameIsValid,
+    titleIsValid
+  } as isValidValuesType
+
+
+  const errorMessageValues ={
+    emailErrorMessage,
+    nameErrorMessage,
+    titleErrorMessage
+  } as errorMessageValuesType
 
   return (
       <Form 
-         emailOnBlur={emailOnBlur}
-         emailIsTouched={emailIsTouched}
-         emailIsValid={emailIsValid}
-         emailErrorMessage={emailErrorMessage}
-         setPersonDetails={{
-           setName,
-           setTitle,
-           setEmail:setEmailValue,
-           setImageUrl,
-           setTelephone,
-           setRole} as setPerson}
+         isValidValues={isValidValues}
+         isTouchedValues={isTouchedValues}
+         seterState={seterState}
          handleClick={addPerson}
-         personDetails={{
-           name,
-           title,
-           email:emailValue,
-           imageUrl,
-           telephone,
-           role} as Person}
+         geterState={geterState}
          mode={FormMode.CREATE}
+         errorMessageValues={errorMessageValues}
+         formIsValid={formIsValid}
       />
   )
 }

@@ -1,39 +1,41 @@
 import React from 'react'
 import {FormMode} from '../../enum/FormMode'
+import { isValidValuesType, isTouchedValuesType, geterStateType, seterStateType, errorMessageValuesType } from '../../interface/FormTypes'
 import {Person,setPerson} from '../../interface/person'
 
 type FormProps = {
-    emailIsValid:any
-    emailErrorMessage:any
-    setPersonDetails:setPerson
-    handleClick: any
-    personDetails:Person
-    mode:FormMode,
-    emailOnBlur:any
-    emailIsTouched:any
+    isValidValues:isValidValuesType
+    isTouchedValues:isTouchedValuesType
+    geterState:geterStateType
+    seterState: seterStateType
+    handleClick:() => void
+    mode:FormMode
+    errorMessageValues:errorMessageValuesType
+    formIsValid:boolean
 }
 
 
 
 
 const Form = ({
-    emailIsValid,
-    emailErrorMessage,
-    setPersonDetails,
+    isValidValues,
+    isTouchedValues,
+    geterState,
+    seterState,
     handleClick,
-    personDetails,
     mode,
-    emailOnBlur,
-    emailIsTouched
+    errorMessageValues,
+    formIsValid
 }:FormProps) => {
 
 
-  const {name,title,email,imageUrl,telephone,role} = personDetails
-  const {setName,setTitle,setEmail,setImageUrl,setTelephone,setRole} = setPersonDetails
+  const {name,title,email,imageUrl,telephone,role} = geterState
+  const {setName,setTitle,setEmail,setImageUrl,setTelephone,setRole} = seterState
+  const {emailIsTouched,nameIsTouched,titleIsTouched} = isTouchedValues
+  const {emailIsValid,nameIsValid,titleIsValid} = isValidValues
+  const {emailErrorMessage,nameErrorMessage,titleErrorMessage} = errorMessageValues
 
 
-
-  console.log(emailErrorMessage,emailIsValid)
   
   return (
     <div className="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
@@ -45,7 +47,7 @@ const Form = ({
           <div className="mt-5 md:mt-0 md:col-span-2">
             <form>
               <div className="grid grid-cols-6 gap-6">
-                <div className="col-span-6 sm:col-span-3">
+                <div className="col-span-6 sm:col-span-3 flex flex-col">
                   <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
                       name
                   </label>
@@ -56,9 +58,10 @@ const Form = ({
                     onChange={(e)=> setName(e.target.value)}
                     value={name}
                   />
+                  {(!nameIsValid && nameIsTouched) && nameErrorMessage}
                 </div>
 
-                <div className="col-span-6 sm:col-span-3">
+                <div className="col-span-6 sm:col-span-3 flex flex-col">
                   <label htmlFor="last-name" className="block text-sm font-medium text-gray-700">
                      title
                   </label>
@@ -69,9 +72,10 @@ const Form = ({
                     onChange={(e)=> setTitle(e.target.value)}
                     value={title}
                   />
+                   {(!titleIsValid && titleIsTouched) && titleErrorMessage}
                 </div>
 
-                <div className="col-span-6 sm:col-span-4">
+                <div className="col-span-6 sm:col-span-4 flex flex-col">
                   <label htmlFor="email-address" className="block text-sm font-medium text-gray-700">
                     Email address
                   </label>
@@ -82,8 +86,10 @@ const Form = ({
                     value={email}
                     className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md h-8"
                   />
+                  {(!emailIsValid && emailIsTouched) && emailErrorMessage}
                 </div>
-                {(!emailIsValid && emailIsTouched) && emailErrorMessage}
+                
+               
 
                 <div className="col-span-6">
                   <label htmlFor="street-address" className="block text-sm font-medium text-gray-700">
@@ -123,6 +129,7 @@ const Form = ({
               </div>
             </form>
             <button
+                disabled={!formIsValid}
                 onClick={handleClick}
                 type="button"
                 className="mt-20 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
